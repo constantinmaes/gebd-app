@@ -23,8 +23,31 @@ app.get('/students', async (req, res) => {
         res.status(500).json(error);
     }
 }); // Liste
-app.get('/students/:id', (req, res) => {}); // Détail d'un étudiant
-app.post('/students', (req, res) => {}); // Création d'un étudiant
+app.get('/students/:id', async (req, res) => {
+    try {
+        // SELECT * FROM students WHERE id=:id
+        const students = await knex('students')
+            .where({ id: req.params.id })
+            .select();
+
+        if (students.length === 0) {
+            return res.status(404).json();
+        }
+
+        return res.status(200).json(students[0]);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}); // Détail d'un étudiant
+app.post('/students', async (req, res) => {
+    try {
+        const id = await knex('students').returning('id').insert(req.body);
+        const students = await knex('students').where({ id: id[0] }).select();
+        res.status(201).json(students[0]);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}); // Création d'un étudiant
 app.patch('/students/:id', (req, res) => {}); // Mise à jour d'un étudiant
 app.delete('/students/:id', (req, res) => {}); // Suppression d'un étudiant
 
