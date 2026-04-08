@@ -14,7 +14,15 @@ const knex = require('knex')({
     },
 });
 
-app.get('/students', (req, res) => {}); // Liste
+app.get('/students', async (req, res) => {
+    try {
+        // SELECT * FROM students;
+        const students = await knex('students').select(); // knex.select().from('students');
+        res.status(200).json(students);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}); // Liste
 app.get('/students/:id', (req, res) => {}); // Détail d'un étudiant
 app.post('/students', (req, res) => {}); // Création d'un étudiant
 app.patch('/students/:id', (req, res) => {}); // Mise à jour d'un étudiant
