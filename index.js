@@ -3,6 +3,17 @@ const app = express();
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
+const knex = require('knex')({
+    client: 'mysql2',
+    connection: {
+        host: 'localhost',
+        port: 3306,
+        user: 'root',
+        password: 'root',
+        database: 'gebd-app',
+    },
+});
+
 app.get('/students', (req, res) => {}); // Liste
 app.get('/students/:id', (req, res) => {}); // Détail d'un étudiant
 app.post('/students', (req, res) => {}); // Création d'un étudiant
@@ -17,4 +28,11 @@ app.delete('/appointments/:id', (req, res) => {}); // Suppression d'un rendez-vo
 
 app.listen(3000, () => {
     console.log('SERVER is running on port 3000');
+    knex.raw('SELECT 1;')
+        .then(() => {
+            console.log('Database connection successful');
+        })
+        .catch((err) => {
+            console.error('Database connection failed:', err);
+        });
 });
