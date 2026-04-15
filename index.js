@@ -27,7 +27,9 @@ app.get('/students/:id', async (req, res) => {
     try {
         // SELECT * FROM students WHERE id=:id
         const students = await knex('students')
-            .where({ id: req.params.id })
+            .where({
+                id: req.params.id,
+            })
             .select();
 
         if (students.length === 0) {
@@ -48,8 +50,35 @@ app.post('/students', async (req, res) => {
         res.status(500).json(error);
     }
 }); // Création d'un étudiant
-app.patch('/students/:id', (req, res) => {}); // Mise à jour d'un étudiant
-app.delete('/students/:id', (req, res) => {}); // Suppression d'un étudiant
+app.patch('/students/:id', async (req, res) => {
+    try {
+        const nbrRecords = await knex('students')
+            .where({ id: req.params.id })
+            .update(req.body);
+        if (nbrRecords === 0) {
+            return res.status(404).json();
+        }
+        const updatedStudents = await knex('students')
+            .where({ id: req.params.id })
+            .select();
+        return res.status(200).json(updatedStudents[0]);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}); // Mise à jour d'un étudiant
+app.delete('/students/:id', async (req, res) => {
+    try {
+        const nbrRecords = await knex('students')
+            .where({ id: req.params.id })
+            .del();
+        if (nbrRecords === 0) {
+            return res.status(404).json();
+        }
+        res.status(204).json();
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}); // Suppression d'un étudiant
 
 app.get('/appointments', (req, res) => {}); // Liste
 app.get('/appointments/:id', (req, res) => {}); // Détail d'un rendez-vous
