@@ -81,9 +81,36 @@ app.delete('/students/:id', async (req, res) => {
 }); // Suppression d'un étudiant
 
 app.get('/appointments', (req, res) => {}); // Liste
-app.get('/appointments/:id', (req, res) => {}); // Détail d'un rendez-vous
-app.post('/appointments', (req, res) => {}); // Création d'un rendez-vous
-app.patch('/appointments/:id', (req, res) => {}); // Mise à jour d'un rendez-vous
+app.get('/appointments/:id', async (req, res) => {
+    try {
+        const appointments = await knex('appointments')
+            .join('students', 'appointments.student_id', '=', 'students.id')
+            .where({
+                'appointments.id': req.params.id,
+            })
+            .select();
+
+        if (appointments.length === 0) {
+            return res.status(404).json();
+        }
+
+        return res.status(200).json(appointments[0]);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}); // Détail d'un rendez-vous
+app.post('/appointments', async (req, res) => {
+    try {
+        const id = await knex('appointments').returning('id').insert(req.body);
+        const appointments = await knex('appointments')
+            .where({ id: id[0] })
+            .select();
+        res.status(201).json(appointments[0]);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}); // Création d'un rendez-vous
+app.patch('/appointments/:id', async (req, res) => {}); // Mise à jour d'un rendez-vous
 app.delete('/appointments/:id', (req, res) => {}); // Suppression d'un rendez-vous
 
 app.listen(3000, () => {
